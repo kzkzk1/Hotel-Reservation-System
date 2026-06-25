@@ -8,3 +8,7 @@
 
 ## 注意点
 .astaファイルはバイナリ形式で，2人が同時に触れないらしいです。
+
+##　共通認識
+- システムを操作するのは受付係で，利用者はシステムと関わらない。<img width="75" height="57" alt="image" src="https://github.com/user-attachments/assets/2cf05490-33ab-4e9a-9e09-11573a52ceef" />
+
