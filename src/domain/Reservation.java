@@ -4,17 +4,16 @@ import java.time.LocalDate;
 
 /**
  * 予約を表すエンティティ。
- * 予約番号で識別し、宿泊日とどの客室タイプを予約したかを持つ。
  */
 public class Reservation {
 
-    private int reservationNumber;   // 予約番号
-    private LocalDate stayDate;      // 宿泊日
-    private RoomType roomType;       // 参照：どの客室タイプを予約したか
+    private int reservationNumber;        // 予約番号
+    private LocalDate accommodationDate;  // 宿泊日
+    private RoomType roomType;            // 参照：予約した客室タイプ
 
-    public Reservation(int reservationNumber, LocalDate stayDate, RoomType roomType) {
+    public Reservation(int reservationNumber, LocalDate accommodationDate, RoomType roomType) {
         this.reservationNumber = reservationNumber;
-        this.stayDate = stayDate;
+        this.accommodationDate = accommodationDate;
         this.roomType = roomType;
     }
 
@@ -22,8 +21,8 @@ public class Reservation {
         return reservationNumber;
     }
 
-    public LocalDate getStayDate() {
-        return stayDate;
+    public LocalDate getAccommodationDate() {
+        return accommodationDate;
     }
 
     public RoomType getRoomType() {

@@ -5,20 +5,17 @@ import java.time.LocalDateTime;
 /**
  * 宿泊を表すエンティティ。
  * チェックインで生成され、チェックアウトで精算される。
- * チェックアウト日時が入っているかどうかで精算済みかを判断する。
  */
 public class Accommodation {
 
     private LocalDateTime checkInDateTime;    // チェックイン日時
     private LocalDateTime checkOutDateTime;   // チェックアウト日時（nullなら未精算）
-    private int charge;                       // 料金
     private Room room;                        // 参照：どの客室の宿泊か
 
-    public Accommodation(Room room, int charge) {
+    public Accommodation(Room room) {
         this.room = room;
-        this.charge = charge;
         this.checkInDateTime = LocalDateTime.now();  // 現在日時でチェックイン
-        this.checkOutDateTime = null;                // まだチェックアウトしていない
+        this.checkOutDateTime = null;
     }
 
     public LocalDateTime getCheckInDateTime() {
@@ -27,10 +24,6 @@ public class Accommodation {
 
     public LocalDateTime getCheckOutDateTime() {
         return checkOutDateTime;
-    }
-
-    public int getCharge() {
-        return charge;
     }
 
     public Room getRoom() {
