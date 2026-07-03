@@ -60,21 +60,18 @@ public class CUI {
         reader.close();
     }
 
-    // --- 各ユースケース（中身は担当者が実装する） ---
-
-    // 予約UC（アクター：利用者 / 実装担当：大和）
+    // CUI.java（Aが土台で用意する。各UC担当はController側を書く）
     private void reserveRoom() throws IOException {
-        System.out.println("[予約] ここに予約処理を実装します（未実装）");
+        ReservationControl control = new ReservationControl();
+        control.makeReservation(reader);
     }
-
-    // チェックインUC（アクター：受付係 / 実装担当：佑典）
     private void checkIn() throws IOException {
-        System.out.println("[チェックイン] ここにチェックイン処理を実装します（未実装）");
+        CheckInControl control = new CheckInControl();
+        control.checkIn(reader);
     }
-
-    // チェックアウトUC（アクター：受付係 / 実装担当：宏大）
     private void checkOut() throws IOException {
-        System.out.println("[チェックアウト] ここにチェックアウト処理を実装します（未実装）");
+        CheckOutControl control = new CheckOutControl();
+        control.checkOut(reader);
     }
 
     // プログラムの入口
