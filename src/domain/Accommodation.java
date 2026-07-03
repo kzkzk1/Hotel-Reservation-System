@@ -35,6 +35,16 @@ public class Accommodation {
         this.checkOutDateTime = LocalDateTime.now();
     }
 
+    // ファイルから復元するとき、保存されたチェックイン日時をセットする
+    public void restoreCheckInDateTime(LocalDateTime checkInDateTime) {
+        this.checkInDateTime = checkInDateTime;
+    }
+
+    // ファイルから復元するとき、保存されたチェックアウト日時をセットする
+    public void restoreCheckOutDateTime(LocalDateTime checkOutDateTime) {
+        this.checkOutDateTime = checkOutDateTime;
+    }
+
     // 精算済みか（チェックアウト日時が入っていれば精算済み）
     public boolean isPaid() {
         return this.checkOutDateTime != null;
