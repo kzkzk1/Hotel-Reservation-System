@@ -81,13 +81,14 @@ public class RoomRepository {
         return null;
     }
 
-    // 指定した客室タイプの、空いている客室を1つ探す（無ければnull）
-    public Room findAvailableByType(String typeName) {
+    // 指定した客室タイプの、空いている客室を全部返す（一覧表示用）
+    public List<Room> findAllAvailableByType(String typeName) {
+        List<Room> result = new ArrayList<>();
         for (Room room : rooms) {
             if (room.getRoomType().getTypeName().equals(typeName) && !room.isOccupied()) {
-                return room;
+                result.add(room);
             }
         }
-        return null;
+        return result;
     }
 }
