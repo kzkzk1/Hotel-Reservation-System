@@ -60,15 +60,19 @@ public class CUI {
         reader.close();
     }
 
-    // CUI.java（Aが土台で用意する。各UC担当はController側を書く）
+    // 予約UC（アクター：利用者 / 実装担当：大和）
     private void reserveRoom() throws IOException {
         ReservationControl control = new ReservationControl();
         control.makeReservation(reader);
     }
+
+    // チェックインUC（アクター：受付係 / 実装担当：佑典）
     private void checkIn() throws IOException {
         CheckInControl control = new CheckInControl();
         control.checkIn(reader);
     }
+
+    // チェックアウトUC（アクター：受付係 / 実装担当：宏大）
     private void checkOut() throws IOException {
         CheckOutControl control = new CheckOutControl();
         control.checkOut(reader);
