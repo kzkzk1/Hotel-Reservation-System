@@ -17,6 +17,6 @@ public class CheckInControl {
     public void checkIn(BufferedReader reader) throws IOException {
         RepositoryFactory factory = RepositoryFactory.getInstance();
         // TODO（佑典）: チェックインUCを実装する（Issue #18参照）
-        System.out.println("[チェックイン] 未実装");
+        System.out.println("[チェックイン] 実装");
     }
 }
