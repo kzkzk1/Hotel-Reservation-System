@@ -47,9 +47,8 @@ public class CheckOutControl {
             room.setRoomToVacant(); 
             
             // 6. 精算記録を更新（Accommodationを精算済みにする）
-            // ※注意: 毛利さんの Accommodation.java の実装に合わせてメソッド名は適宜変更してください。
-            // 例: acc.markAsPaid() や acc.setCheckOutDateTime(LocalDateTime.now()) など
-            acc.updatePaymentRecord(); 
+
+            acc.markAsPaid(); 
 
             // 7. メモリ上の変更をテキストファイル (.txt) に同期して保存する
             factory.getRoomRepository().save();
