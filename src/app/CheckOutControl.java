@@ -55,7 +55,7 @@ public class CheckOutControl {
             factory.getAccommodationRepository().save();
 
             // 8. 完了メッセージ
-            System.out.println("【完了】チェックアウトが正常に完了しました。ご利用ありがとうございました。");
+            System.out.println("【完了】部屋番号 " + roomNumber + " のチェックアウトが完了しました。");
 
         } catch (Exception e) {
             // 予期せぬエラーが起きた場合（ファイル書き込み失敗など）の安全策
