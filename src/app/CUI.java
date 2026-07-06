@@ -25,6 +25,7 @@ public class CUI {
             System.out.println("1: 予約");
             System.out.println("2: チェックイン");
             System.out.println("3: チェックアウト");
+            System.out.println("4: 予約キャンセル");
             System.out.println("0: 終了");
             System.out.print("> ");
 
@@ -52,6 +53,9 @@ public class CUI {
                 case 3:
                     checkOut();
                     break;
+                case 4:
+                    cancelReservation();
+                    break;
                 default:
                     System.out.println("無効な選択です");
                     break;
@@ -76,6 +80,12 @@ public class CUI {
     private void checkOut() throws IOException {
         CheckOutControl control = new CheckOutControl();
         control.checkOut(reader);
+    }
+
+    // キャンセルUC（アクター：利用者 / 実装担当：岳淑）
+    private void cancelReservation() throws IOException {
+        CancelControl control = new CancelControl();
+        control.cancel(reader);
     }
 
     // プログラムの入口

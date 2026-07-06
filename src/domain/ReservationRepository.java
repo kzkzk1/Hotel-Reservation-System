@@ -92,4 +92,10 @@ public class ReservationRepository {
         }
         return max + 1;
     }
+
+    // 予約を削除する（キャンセル用）
+    public void remove(Reservation reservation) {
+        reservations.remove(reservation);
+        save();  // 削除したらファイルに反映
+    }
 }
