@@ -85,42 +85,92 @@ public class WebServer {
         public void handle(HttpExchange exchange) throws IOException {
             RepositoryFactory factory = RepositoryFactory.getInstance();
             String message = "";
+            String typeOptions = "";  // その日に空きのある客室タイプの選択肢
+            String selectedDate = ""; // 選択された日付をフォームに保持するための変数
 
             if (exchange.getRequestMethod().equalsIgnoreCase("POST")) {
                 Map<String, String> p = parseParams(readRequestBody(exchange));
+                String action = p.get("action");
+
                 try {
-                    LocalDate date = LocalDate.parse(p.get("date"));
-                    RoomType type = factory.getRoomTypeRepository().findByTypeName(p.get("type"));
-                    if (type == null || type.getAvailableRoomCount() <= 0) {
-                        message = msg("予約できません（空きがありません）", true);
-                    } else {
-                        int number = factory.getReservationRepository().nextReservationNumber();
-                        factory.getReservationRepository().add(new Reservation(number, date, type));
-                        type.decrementAvailableRoomCount();
-                        factory.getRoomTypeRepository().save();
-                        message = msg("予約完了。予約番号：" + number, false);
+                    if ("search".equals(action)) {
+                        // 【ステップ1】日付が送信されたら、その日の空室状況を計算してプルダウンを作る
+                        selectedDate = p.get("date");
+                        LocalDate date = LocalDate.parse(selectedDate);
+                        
+                        StringBuilder sb = new StringBuilder();
+                        for (RoomType rt : factory.getRoomTypeRepository().findAll()) {
+                            // CUI版と同じ引き算ロジックでその日の空室数を算出
+                            int totalRooms = factory.getRoomRepository().countTotalRoomsByType(rt.getTypeName());
+                            int reservedCount = factory.getReservationRepository().countReservationsByTypeAndDate(rt.getTypeName(), date);
+                            int availableCount = totalRooms - reservedCount;
+
+                            // 空きがある客室タイプだけを選択肢（option）に追加する
+                            if (availableCount > 0) {
+                                sb.append("<option value='").append(rt.getTypeName()).append("'>")
+                                  .append(rt.getTypeName()).append("（").append(rt.getCharge())
+                                  .append("円 / 残り").append(availableCount).append("室）</option>");
+                            }
+                        }
+                        typeOptions = sb.toString();
+
+                        if (typeOptions.isEmpty()) {
+                            message = msg(selectedDate + " はすべての客室タイプが満室です。", true);
+                        } else {
+                            message = msg(selectedDate + " の空室状況を表示しています。客室タイプを選んでください。", false);
+                        }
+
+                    } else if ("reserve".equals(action)) {
+                        // 【ステップ2】実際に予約を実行する処理
+                        selectedDate = p.get("date");
+                        LocalDate date = LocalDate.parse(selectedDate);
+                        RoomType type = factory.getRoomTypeRepository().findByTypeName(p.get("type"));
+
+                        if (type == null) {
+                            message = msg("予約できません（該当する客室タイプがありません）", true);
+                        } else {
+                            // 確定直前に念のためもう一度在庫チェック
+                            int totalRooms = factory.getRoomRepository().countTotalRoomsByType(type.getTypeName());
+                            int reservedCount = factory.getReservationRepository().countReservationsByTypeAndDate(type.getTypeName(), date);
+                            int availableCount = totalRooms - reservedCount;
+
+                            if (availableCount <= 0) {
+                                message = msg("申し訳ありません、満室のため予約できませんでした。", true);
+                            } else {
+                                int number = factory.getReservationRepository().nextReservationNumber();
+                                factory.getReservationRepository().add(new Reservation(number, date, type));
+                                message = msg("予約完了。予約番号：" + number, false);
+                                selectedDate = ""; // 完了したら日付選択をリセット
+                            }
+                        }
                     }
                 } catch (Exception e) {
                     message = msg("入力エラー：" + e.getMessage(), true);
                 }
             }
 
-            StringBuilder options = new StringBuilder();
-            for (RoomType rt : factory.getRoomTypeRepository().findAll()) {
-                if (rt.getAvailableRoomCount() > 0) {
-                    options.append("<option value='").append(rt.getTypeName()).append("'>")
-                           .append(rt.getTypeName()).append("（").append(rt.getCharge())
-                           .append("円 / 空き").append(rt.getAvailableRoomCount()).append("）</option>");
-                }
+            // HTMLボディの組み立て
+            String body = message;
+            
+            // ① 日付入力フォーム（常に表示させておくことで、日付の再選択をしやすくします）
+            body += "<form method='post'>"
+                  + "<input type='hidden' name='action' value='search'>"
+                  + "<p>宿泊日：<input type='date' name='date' value='" + selectedDate + "' required> "
+                  + "<button type='submit'>空室状況を確認</button></p>"
+                  + "</form>";
+
+            // ② 空室のある客室タイプが存在する場合（検索後）のみ、部屋選択と予約ボタンを表示する
+            if (!typeOptions.isEmpty()) {
+                body += "<form method='post'>"
+                      + "<input type='hidden' name='action' value='reserve'>"
+                      + "<input type='hidden' name='date' value='" + selectedDate + "'>" // 日付データを裏で引き継ぐ
+                      + "<p>客室タイプ：<select name='type'>" + typeOptions + "</select></p>"
+                      + "<p><button type='submit'>この内容で予約する</button></p>"
+                      + "</form>";
             }
 
-            String html = page("部屋を予約する", message
-                + "<form method='post'>"
-                + "<p>宿泊日：<input type='date' name='date' required></p>"
-                + "<p>客室タイプ：<select name='type'>" + options + "</select></p>"
-                + "<p><button type='submit'>予約する</button></p>"
-                + "</form>" + backLink());
-            sendHtml(exchange, html);
+            body += backLink();
+            sendHtml(exchange, page("部屋を予約する", body));
         }
     }
 
@@ -246,8 +296,7 @@ public class WebServer {
                     if (r == null) {
                         message = msg("無効な予約番号です", true);
                     } else {
-                        r.getRoomType().incrementAvailableRoomCount();
-                        factory.getRoomTypeRepository().save();
+                        // r.getRoomType().incrementAvailableRoomCount(); と save(); の2行を削除
                         factory.getReservationRepository().remove(r);
                         message = msg("予約番号 " + number + " をキャンセルしました", false);
                     }
