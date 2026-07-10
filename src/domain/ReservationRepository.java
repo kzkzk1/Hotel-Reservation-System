@@ -72,6 +72,17 @@ public class ReservationRepository {
         return reservations;
     }
 
+    public int countReservationsByTypeAndDate(String typeName, LocalDate date) {
+        int count = 0;
+        for (Reservation r : reservations) { // ※内部のリスト名（例: reservations）に合わせてください
+            if (r.getRoomType().getTypeName().equals(typeName) && 
+                r.getAccommodationDate().equals(date)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     // 予約番号から予約を探す
     public Reservation findByNumber(int reservationNumber) {
         for (Reservation r : reservations) {

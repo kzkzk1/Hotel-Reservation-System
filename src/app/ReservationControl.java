@@ -29,14 +29,23 @@ public class ReservationControl {
 
         // 2. 空きのある客室タイプを表示
         System.out.println("--- 空きのある客室タイプ ---");
-        boolean hasAvailableRoom = false; // 空室があるかどうかのフラグ
+        boolean hasAvailableRoom = false;
 
         for (RoomType rt : factory.getRoomTypeRepository().findAll()) {
-            if (rt.getAvailableRoomCount() > 0) { 
-                System.out.println("種別名: " + rt.getTypeName() + 
-                                   " / 料金: " + rt.getCharge() + 
-                                   " / 空き数: " + rt.getAvailableRoomCount());
-                hasAvailableRoom = true; // 1つでも空きがあれば true にする
+            String typeName = rt.getTypeName();
+            
+            // 総部屋数と、指定された日(date)の予約数を取得
+            int totalRooms = factory.getRoomRepository().countTotalRoomsByType(typeName);
+            int reservedCount = factory.getReservationRepository().countReservationsByTypeAndDate(typeName, date);
+            
+            // 引き算をして空室を算出
+            int availableCount = totalRooms - reservedCount;
+
+            if (availableCount > 0) { 
+                System.out.println("種別名: " + typeName + 
+                                " / 料金: " + rt.getCharge() + 
+                                " / 空き数: " + availableCount);
+                hasAvailableRoom = true;
             }
         }
         System.out.println("----------------------------");
@@ -53,8 +62,19 @@ public class ReservationControl {
         RoomType type = factory.getRoomTypeRepository().findByTypeName(typeName);
 
         // 4. type が null または空き0なら「予約できません」と表示して return
-        if (type == null || type.getAvailableRoomCount() <= 0) { 
+        if (type == null) { 
             System.out.println("予約できません");
+            return;
+        }
+
+        // リポジトリから総部屋数と現在の予約数を取得し、その日の空室数を計算する
+        int totalRooms = factory.getRoomRepository().countTotalRoomsByType(type.getTypeName());
+        int reservedCount = factory.getReservationRepository().countReservationsByTypeAndDate(type.getTypeName(), date);
+        int availableCount = totalRooms - reservedCount;
+
+        // 計算した空室数が0以下なら予約不可にする
+        if (availableCount <= 0) { 
+            System.out.println("予約できません（満室です）");
             return;
         }
 
@@ -66,10 +86,6 @@ public class ReservationControl {
 
         // 7. リポジトリに追加
         factory.getReservationRepository().add(r); 
-
-        // 8. 空き部屋数を1減らす
-        type.decrementAvailableRoomCount(); 
-        factory.getRoomTypeRepository().save();
 
         // 9. 予約番号を表示
         System.out.println("予約完了。予約番号：" + number);

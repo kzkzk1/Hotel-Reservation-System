@@ -91,4 +91,14 @@ public class RoomRepository {
         }
         return result;
     }
+
+    public int countTotalRoomsByType(String typeName) {
+        int count = 0;
+        for (Room room : rooms) {
+            if (room.getRoomType().getTypeName().equals(typeName)) {
+                count++;
+            }
+        }
+        return count;
+    }
 }

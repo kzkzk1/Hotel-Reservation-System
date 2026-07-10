@@ -31,10 +31,6 @@ public class CancelControl {
             // 3. 予約の客室タイプを取得
             RoomType type = r.getRoomType();
 
-            // 4. 空き部屋数を1増やす
-            type.incrementAvailableRoomCount();
-            factory.getRoomTypeRepository().save();
-
             // 5. 予約を削除する
             factory.getReservationRepository().remove(r);
 

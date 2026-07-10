@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * 客室タイプのデータを管理するリポジトリ。
- * メモリ上にリストを保持し、ファイル(data/roomtypes.txt)と同期する。
+ * メモリ上にリストを保持し、ファイル(data)と同期する。
  * ファイル形式: 種別名,料金,定員,空き部屋数
  */
 public class RoomTypeRepository {
@@ -37,8 +37,7 @@ public class RoomTypeRepository {
                 String typeName = parts[0];
                 int charge = Integer.parseInt(parts[1]);
                 int capacity = Integer.parseInt(parts[2]);
-                int availableRoomCount = Integer.parseInt(parts[3]);
-                roomTypes.add(new RoomType(typeName, charge, capacity, availableRoomCount));
+                roomTypes.add(new RoomType(typeName, charge, capacity));
             }
         } catch (IOException e) {
             System.out.println("roomtypes.txt が読み込めませんでした（初回なら正常）");
@@ -49,8 +48,8 @@ public class RoomTypeRepository {
     public void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
             for (RoomType rt : roomTypes) {
-                writer.write(rt.getTypeName() + "," + rt.getCharge() + ","
-                        + rt.getCapacity() + "," + rt.getAvailableRoomCount());
+                // 空き部屋数の出力を削除（種別名,料金,定員 の3つだけにする）
+                writer.write(rt.getTypeName() + "," + rt.getCharge() + "," + rt.getCapacity());
                 writer.newLine();
             }
         } catch (IOException e) {
