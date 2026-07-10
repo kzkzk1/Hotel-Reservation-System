@@ -68,16 +68,49 @@ public class WebServer {
         }
     }
 
-    // ===== スタッフメニュー（チェックイン・チェックアウト）=====
+    // ===== スタッフメニュー（社員番号で認証）=====
     static class StaffHandler implements HttpHandler {
         public void handle(HttpExchange exchange) throws IOException {
-            String html = page("スタッフ用メニュー",
-                  "<ul class='menu'>"
-                + "<li><a href='/checkin'>チェックイン</a></li>"
-                + "<li><a href='/checkout'>チェックアウト</a></li>"
-                + "</ul>");
+            RepositoryFactory factory = RepositoryFactory.getInstance();
+
+            // POSTで社員番号が送られてきたら認証する
+            if (exchange.getRequestMethod().equalsIgnoreCase("POST")) {
+                Map<String, String> p = parseParams(readRequestBody(exchange));
+                String empNumber = p.get("employee");
+
+                if (factory.getStaffRepository().isValid(empNumber)) {
+                    // 認証成功：スタッフメニューを表示
+                    String html = page("スタッフ用メニュー",
+                          "<ul class='menu'>"
+                        + "<li><a href='/checkin'>チェックイン</a></li>"
+                        + "<li><a href='/checkout'>チェックアウト</a></li>"
+                        + "</ul>");
+                    sendHtml(exchange, html);
+                    return;
+                } else {
+                    // 認証失敗：エラーメッセージ付きで、また入力画面
+                    String html = page("スタッフ認証",
+                          msg("社員番号が正しくありません", true)
+                        + staffLoginForm());
+                    sendHtml(exchange, html);
+                    return;
+                }
+            }
+
+            // 初回（GET）：社員番号の入力画面を表示
+            String html = page("スタッフ認証", staffLoginForm());
             sendHtml(exchange, html);
         }
+    }
+
+    // スタッフ認証の入力フォーム
+    private static String staffLoginForm() {
+        return "<p>スタッフの方は、社員番号を入力してください。</p>"
+             + "<form method='post'>"
+             + "<p>社員番号：<input type='text' name='employee' required></p>"
+             + "<p><button type='submit'>ログイン</button></p>"
+             + "</form>"
+             + backLink();
     }
 
     // ===== 予約 =====

@@ -15,6 +15,7 @@ public class RepositoryFactory {
     private RoomRepository roomRepository;
     private ReservationRepository reservationRepository;
     private AccommodationRepository accommodationRepository;
+    private StaffRepository staffRepository;
 
     // privateコンストラクタ（外から new できない＝1つだけになる）
     private RepositoryFactory() {
@@ -24,6 +25,7 @@ public class RepositoryFactory {
         roomRepository = new RoomRepository(roomTypeRepository);
         reservationRepository = new ReservationRepository(roomTypeRepository);
         accommodationRepository = new AccommodationRepository(roomRepository);
+        staffRepository = new StaffRepository();
     }
 
     // 唯一のインスタンスを返す
@@ -45,5 +47,9 @@ public class RepositoryFactory {
 
     public AccommodationRepository getAccommodationRepository() {
         return accommodationRepository;
+    }
+
+    public StaffRepository getStaffRepository() {
+        return staffRepository;
     }
 }
